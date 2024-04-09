@@ -27,11 +27,11 @@ module toccata_playback #(
     input  wire         empty,      // 1 - FIFO is empty
 
     // Audio interface
-    (* DEBUG = "true", KEEP = "true" *)
+    (* KEEP = "true" *)
     output logic [15:0] ldata,      // Left DAC data
-    (* DEBUG = "true", KEEP = "true" *)
+    (* KEEP = "true" *)
     output logic [15:0] rdata,      // Right DAC data
-    (* DEBUG = "true", KEEP = "true" *)
+    (* KEEP = "true" *)
     output logic        endata      // Strobe on new sample data
 );
 
@@ -187,7 +187,7 @@ always_ff @(posedge clk) begin
                 pb_en <= 1'b1;
             end else begin
                 // counting down to action gain
-                audio_delay <= audio_delay - 1;
+                audio_delay <= audio_delay - 1'd1;
             end
         end
 

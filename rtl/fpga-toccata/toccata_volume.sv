@@ -20,12 +20,12 @@ module toccata_volume (
 
 // Fixed-point representation of the attenuation factor
 parameter FIXED_ATTEN_FACTOR   = 16'sd27553; // Fixed-point representation of 0.8409
-parameter FIXED_ONE            = 16'sd32768; // Fixed-point representation of 1.0 or 2^15
+parameter FIXED_ONE            = 32'sd32768; // Fixed-point representation of 1.0 or 2^15
 
 parameter integer ATTEN_LEVELS = 64; // 6 bits for attenuation level
 
 // LUT for attenuation factors
-logic signed [31:0] attenuation_factors[ATTEN_LEVELS];
+wire signed [31:0] attenuation_factors[ATTEN_LEVELS];
 
 // Initialize the LUT
 initial begin
@@ -46,12 +46,12 @@ always_ff @(posedge clk) begin
         if (mute_left) begin
             audio_out_left <= 'h0000;
         end else begin
-            audio_out_left <= ($signed(audio_in_left) * attenuation_factors[attenuation_left]) >>> 15;
+            audio_out_left <= 16'(($signed(audio_in_left) * attenuation_factors[attenuation_left]) >>> 15);
         end
         if (mute_right) begin
             audio_out_right <= 'h0000;
         end else begin
-            audio_out_right <= ($signed(audio_in_right) * attenuation_factors[attenuation_right]) >>> 15;
+            audio_out_right <= 16'(($signed(audio_in_right) * attenuation_factors[attenuation_right]) >>> 15);
         end
     end
 end

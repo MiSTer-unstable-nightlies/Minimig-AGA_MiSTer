@@ -122,8 +122,9 @@ always_ff @(posedge clk) begin
     `endif
 end
 
+localparam FIFO_BW = $clog2(FIFO_SIZE) + 1;
 logic                       ca_en;            // Capture enable strobe
-logic [$clog2(FIFO_SIZE):0] fifo_counter;     // Fake fifo counter
+logic [FIFO_BW-1:0] fifo_counter;     // Fake fifo counter
 
 always_comb begin
     // Generate the FIFO status signals
@@ -169,7 +170,7 @@ always_ff @(posedge clk) begin
                 ca_en <= 1'b1;
             end else begin
                 // counting down to action gain
-                audio_delay <= audio_delay - 1;
+                audio_delay <= audio_delay - 1'd1;
             end
         end
 
@@ -179,18 +180,18 @@ always_ff @(posedge clk) begin
             if (sm == 1'b0) begin
                 if (fmt == 1'b0) begin
                     // Mono 8-bit, 1 byte per sample
-                    fifo_counter <= fifo_counter + 1;
+                    fifo_counter <= fifo_counter + 1'd1;
                 end else begin
                     // Mono 16-bit, 2 bytes per sample
-                    fifo_counter <= fifo_counter + 2;
+                    fifo_counter <= fifo_counter + 2'd2;
                 end
             end else begin
                 if (fmt == 1'b0) begin
                     // Stereo 8-bit, 2 byte per sample
-                    fifo_counter <= fifo_counter + 2;
+                    fifo_counter <= fifo_counter + 2'd2;
                 end else begin
                     // Stereo 16-bit, 4 byte per sample
-                    fifo_counter <= fifo_counter + 4;
+                    fifo_counter <= fifo_counter + 3'd4;
                 end
             end
         end
@@ -198,12 +199,12 @@ always_ff @(posedge clk) begin
         // Read process
         if (rd == 1'b1 && empty == 1'b0) begin
             // Decrement the fake fifo counter
-            fifo_counter <= fifo_counter - 1;
+            fifo_counter <= fifo_counter - 1'd1;
         end
 
         // Prevent overflows that are over FIFO_SIZE
         if (fifo_counter > FIFO_SIZE) begin
-            fifo_counter <= FIFO_SIZE;
+            fifo_counter <= FIFO_BW'(FIFO_SIZE);
         end
 
         // Always present the same fake data

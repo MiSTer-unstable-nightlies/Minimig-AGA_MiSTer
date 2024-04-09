@@ -354,7 +354,7 @@ always_ff @(posedge clk) begin
 
         // Simulate auto callibration cycle
         if (hsync_next == 2'b01 && auto_callibration > 0) begin
-            auto_callibration <= auto_callibration - 1;
+            auto_callibration <= auto_callibration - 1'd1;
         end
         if (auto_callibration > 10 && auto_callibration < 30) begin
             // Auto callibration in progress

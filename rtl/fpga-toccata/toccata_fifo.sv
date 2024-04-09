@@ -22,7 +22,7 @@ module toccata_fifo #(
 );
 
 // Internal variables
-(* ram_style = "block" *)
+(* ramstyle = "M10K" *)
 logic [DATA_WIDTH-1:0] fifo_array [FIFO_DEPTH-1:0];
 // int read_ptr = 0, write_ptr = 0;
 logic [$clog2(FIFO_DEPTH): 0] count; // To handle full and empty states
@@ -67,8 +67,8 @@ always_comb begin
     empty = (count == 0);
 
     // Next pointer state
-    write_ptr_next = write_ptr + 1;
-    read_ptr_next = read_ptr + 1;
+    write_ptr_next = write_ptr + 1'd1;
+    read_ptr_next = read_ptr + 1'd1;
 end
 
 
@@ -89,14 +89,14 @@ always_ff @(posedge clk) begin
         if (wr_en && !full) begin
             fifo_array[write_ptr] <= data_in;
             write_ptr <= write_ptr_next;
-            count <= count + 1;
+            count <= count + 1'd1;
         end
 
         // READ from the FIFO
         if (rd_en && !empty) begin
             data_out <= output_next;
             read_ptr <= read_ptr_next; // Move pointer to next position
-            count <= count - 1; // One less byte in the FIFO
+            count <= count - 1'd1; // One less byte in the FIFO
         end
 
         // If read and write are both active, count doesn't change: 1 in, 1 out.
