@@ -138,7 +138,7 @@ reg  [15:0] chip_data;
 reg  [31:0] vbr;
 
 always @* begin
-	if(cpucfg[1]) begin
+	if(cpucfg[1:0]) begin
 		cpu_dout     = cpu_dout_p;
 		cpu_addr     = cpu_addr_p;
 		cpustate     = cpustate_p;

@@ -309,7 +309,7 @@ amiga_clk amiga_clk
 );
 
 
-wire cpu_type = cpucfg[1];
+wire cpu_type = |cpucfg[1:0];
 reg  cpu_ph1;
 reg  cpu_ph2;
 reg  ram_cs;
