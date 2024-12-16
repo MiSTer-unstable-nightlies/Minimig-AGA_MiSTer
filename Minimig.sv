@@ -261,7 +261,7 @@ assign LED_DISK     = {1'b0, ide_fast ? ide_f_led : ide_c_led};
 
 assign VGA_SCALER   = FB_EN;
 
-wire clk_57, clk_114;
+wire clk_114;
 wire clk_sys;
 wire locked;
 
@@ -270,8 +270,67 @@ pll pll
 	.refclk(CLK_50M),
 	.outclk_0(clk_114),
 	.outclk_1(clk_sys),
+	.reconfig_to_pll(reconfig_to_pll),
+	.reconfig_from_pll(reconfig_from_pll),
 	.locked(locked)
 );
+
+wire [63:0] reconfig_to_pll;
+wire [63:0] reconfig_from_pll;
+wire        cfg_waitrequest;
+reg         cfg_write;
+reg   [5:0] cfg_address;
+reg  [31:0] cfg_data;
+
+pll_cfg pll_cfg
+(
+	.mgmt_clk(CLK_50M),
+	.mgmt_reset(0),
+	.mgmt_waitrequest(cfg_waitrequest),
+	.mgmt_read(0),
+	.mgmt_readdata(),
+	.mgmt_write(cfg_write),
+	.mgmt_address(cfg_address),
+	.mgmt_writedata(cfg_data),
+	.reconfig_to_pll(reconfig_to_pll),
+	.reconfig_from_pll(reconfig_from_pll)
+);
+
+always @(posedge CLK_50M) begin
+	reg ntscd = 0, ntscd2 = 0;
+	reg [2:0] state = 0;
+	reg ntsc_r;
+
+	ntscd <= ntsc;
+	ntscd2 <= ntscd;
+
+	cfg_write <= 0;
+	if(ntscd2 == ntscd && ntscd2 != ntsc_r) begin
+		state <= 1;
+		ntsc_r <= ntscd2;
+	end
+
+	if(!cfg_waitrequest) begin
+		if(state) state<=state+1'd1;
+		case(state)
+			1: begin
+					cfg_address <= 0;
+					cfg_data <= 0;
+					cfg_write <= 1;
+				end
+			3: begin
+					cfg_address <= 7;
+					cfg_data <= ntsc_r ? 702807747 : 343817200;
+					cfg_write <= 1;
+				end
+			5: begin
+					cfg_address <= 2;
+					cfg_data <= 0;
+					cfg_write <= 1;
+				end
+		endcase
+	end
+end
 
 wire reset = ~locked | buttons[1] | RESET;
 
@@ -597,6 +656,7 @@ wire [9:0]  rdata_okk;     // right DAC data (PWM vol version)
 wire        vs;
 wire        hs;
 wire  [1:0] ar;
+wire        ntsc;
 
 wire  [5:0] ide_c_req;
 wire [15:0] ide_c_readdata;
@@ -691,6 +751,7 @@ minimig minimig
 	.scanline     (fx               ),
 	//.ce_pix     (ce_pix           ),
 	.res          (res              ),
+	.ntsc         (ntsc             ),
 
 	//audio
 	.ldata        (ldata            ), // left DAC data

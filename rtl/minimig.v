@@ -233,6 +233,7 @@ module minimig
 	output  [2:0] scanline,
 	output 	     ce_pix,
 	output  [1:0] res,
+	output reg    ntsc,
 
 	//audio
 	output [14:0] ldata,       // left DAC data
@@ -264,11 +265,6 @@ module minimig
 	output [15:0] ide_readdata
 );
 
-//--------------------------------------------------------------------------------------
-
-parameter [0:0] NTSC = 1'b0;	//Agnus type (PAL/NTSC)
-
-//--------------------------------------------------------------------------------------
 
 //local signals for data bus
 wire [15:0] cpu_data_in;		//cpu data bus in
@@ -396,8 +392,6 @@ wire        gayle_irq;			//interrupt request
 wire        gayle_nrdy;       // HDD fifo is not ready for reading
 
 wire	[7:0] bank;					//memory bank select
-
-reg         ntsc = NTSC;		//PAL/NTSC video mode selection
 
 // host interface
 wire        host_cs;
