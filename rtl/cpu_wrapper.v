@@ -299,7 +299,7 @@ always @(*) begin
 			6'h1: autocfg_data = 4'b0001; // Next board not related, size 'h64k
 			// Inverted from here on
 			6'h3: autocfg_data = 4'b0011; // Lower byte product number
-			6'h5: autocfg_data = 4'b1101;   // logical size 64k
+			//6'h5: autocfg_data = 4'b1101;   // logical size 64k
 			6'h8: autocfg_data = 4'b1011; // Manufacturer ID: 0x4754
 			6'h9: autocfg_data = 4'b1000;
 			6'ha: autocfg_data = 4'b1010;
